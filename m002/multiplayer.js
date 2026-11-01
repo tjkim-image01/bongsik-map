@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { noServer, createSoloRoom } from './solo-room.js';
 
 // One room shares avatar motion, speech, stage transport and POV transport.
 // Cameras and flight previews belong to each visitor.
@@ -6,6 +7,7 @@ export function createMultiplayer({
   player, camera, getMode, profile, avatarFactory, getLocalState, setSpawn, status,
   onStage, onStageError, onConnection, onViewStage,
   onPov, onPovError, onViewPov, getLocalPovProgress,
+  getMedia, defaultMedia,   // 서버 없는 공개 페이지에서 혼자 보기 방(solo-room.js)이 쓸 TV 영상 목록
 }) {
   const layer = document.getElementById('speech-layer');
   const form = document.getElementById('chat-form');
@@ -153,11 +155,13 @@ export function createMultiplayer({
     if (connected && socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({type:'clock', sentAt:performance.now()}));
   }
   function controlStage(command, position) {
+    if (solo) return solo.controlStage(command, position);
     if (!connected || socket?.readyState !== WebSocket.OPEN) return false;
     socket.send(JSON.stringify({type:'stage', command, ...(position === undefined ? {} : {position})}));
     return true;
   }
   function controlPov(command, arg) {
+    if (solo) return solo.controlPov(command, arg);
     if (!connected || socket?.readyState !== WebSocket.OPEN) return false;
     const payload = { type:'pov', command };
     if (command === 'select') payload.mediaId = String(arg);
@@ -166,6 +170,7 @@ export function createMultiplayer({
     return true;
   }
   function reportPovProgress(progress, ready, duration) {
+    if (solo) return solo.reportPovProgress(progress, ready, duration);
     if (!connected || socket?.readyState !== WebSocket.OPEN) return false;
     socket.send(JSON.stringify({
       type:'pov_progress',
@@ -338,7 +343,23 @@ export function createMultiplayer({
       report('연결 끊김 · 혼자 산책 중 / 재접속 대기');
       feedback.textContent = '다시 연결되면 말을 보낼 수 있어요';
       if (!suspended) retryTimer = setTimeout(connect, Math.min(1000 * 2 ** retry++, 10000));
+      if (!joinedBefore) noServer().then(none => { if (none) startSolo(); });
     };
+  }
+  // 서버가 없는 공개 페이지(GitHub Pages): 다시 붙기를 그만두고 소유 공연·POV를 이 브라우저 안의 혼자 보기 방으로 돌린다
+  let solo = null;
+  function startSolo() {
+    if (solo || suspended) return;
+    suspended = true; clearTimeout(retryTimer);
+    solo = createSoloRoom({ name: profile.name, getMedia, mediaId: defaultMedia, onStage: stage => receiveStage(stage), onPov: pov => receivePov(pov) });
+    report('혼자 보기 · 함께 접속은 로컬 서버에서만 돼요');
+    feedback.textContent = '공개 페이지에서는 말풍선을 보낼 수 없어요';
+    onConnection?.(true);
+    receiveStage(solo.stage(), true);
+    const pov = solo.pov();
+    if (pov) receivePov(pov, true);
+    const local = getLocalPovProgress?.();
+    if (local) solo.reportPovProgress(local.progress, local.ready, local.duration);
   }
   // Use a Web Worker heartbeat so background tabs are not throttled past the
   // server's 1.5s stale-action window when testing or multitasking across tabs.
@@ -368,6 +389,7 @@ export function createMultiplayer({
     if (composing) return;
     const text = input.value.trim();
     if (!text) return;
+    if (solo) { feedback.textContent = '공개 페이지에서는 말풍선을 보낼 수 없어요'; return; }
     if (!connected || socket?.readyState !== WebSocket.OPEN) {
       feedback.textContent = '다시 연결된 뒤 보내 주세요'; return;
     }

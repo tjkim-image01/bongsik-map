@@ -8,6 +8,7 @@
 // 함께 싣고, 받은 화면을 지금 켜진 TV 화면(돔이면 돔 모양, 아니면 평면 TV) 위에 덮어 보여 준다. 공유도 한 번에 한 명(서버 share 발언권).
 // TV(main.js TvSystem)의 영상 재생 상태는 건드리지 않고 그 위에 덮기만 한다.
 import * as THREE from 'three';
+import { noServer } from './solo-room.js';
 
 // 같은 네트워크 기준. 마이크 권한이 없는 브라우저는 자기 주소를 '*.local'로 가려서 듣기만 하는 두 사람끼리 못 찾으므로,
 // 서버(serve.py STUN_PORT)에 실제 LAN 주소를 물어 후보로 쓴다
@@ -57,6 +58,8 @@ export function createVoice({ scene, camera, getSelf, getPlayer, getScreens, sam
     object.position.set(0, y / (avatar.scale.y || 1), 0); return true;
   }
 
+  let serverless = false;   // 서버 없는 공개 페이지(GitHub Pages)면 연결 중이라고 계속 띄우지 않는다
+  noServer().then(none => { serverless = none; button.disabled = none; render(); });
   function render() {
     const someone = speaker && speaker.id !== myId, otherShare = sharer && sharer.id !== myId;
     button.setAttribute('aria-pressed', String(talking));
@@ -65,7 +68,8 @@ export function createVoice({ scene, camera, getSelf, getPlayer, getScreens, sam
     shareButton.disabled = !sharing && (!!otherShare || !ws || ws.readyState !== WebSocket.OPEN);
     ui.classList.toggle('someone', !!(someone || otherShare));
     let text;
-    if (!ws || ws.readyState !== WebSocket.OPEN) text = '음성 연결 중…';
+    if (serverless) text = '음성·화면 공유는 로컬 서버에서만 돼요';
+    else if (!ws || ws.readyState !== WebSocket.OPEN) text = '음성 연결 중…';
     else if (talking) text = '내 목소리가 모두에게 가는 중';
     else if (someone) text = `🔊 ${speaker.name} 님이 말하는 중`;
     else if (wantTalk) text = '마이크 준비 중…';

@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { createSoyu } from './dance.js';
 import { createMultiplayer } from './multiplayer.js';
+import { askBigDownload } from './download-guard.js';
+import { noServer } from './solo-room.js';
 import { createAvatarFactory } from './avatars.js';
 import { createVoice } from './voice.js';
 import { createTvZoom } from './tv-zoom.js';
@@ -196,7 +198,7 @@ async function useBackground(key) {
    backgroundVideo?.pause();backgroundVideo?.removeAttribute('src');backgroundVideo?.load();backgroundVideo=null;setEnvironment(cylinderSkyMap[key].envTex);
   } else {
    for(const k of Object.keys(cylinderSkyMap)){cylinderSkyMap[k].sky.visible=false;}
-   const [poster,video]=await Promise.all([textureLoader.loadAsync(bg.poster),loadVideo(bg.video)]);poster.colorSpace=THREE.SRGBColorSpace;   // 정지 그림 = 조명 반사용, 영상을 못 읽으면 배경으로도 쓴다
+   const [poster,video]=await Promise.all([textureLoader.loadAsync(bg.poster),askBigDownload(bg.video,bg.name).then(ok=>ok?loadVideo(bg.video):null)]);poster.colorSpace=THREE.SRGBColorSpace;   // 정지 그림 = 조명 반사용, 영상을 못 읽으면 배경으로도 쓴다
    const map=video?new THREE.VideoTexture(video):poster;map.colorSpace=THREE.SRGBColorSpace;
    background.material.map=map;background.visible=true;background.rotation.y=Math.PI*2*(bg.frontU-.75);for(const k of Object.keys(cylinderSkyMap)){cylinderSkyMap[k].sky.visible=false;}
    backgroundVideo?.pause();backgroundVideo?.removeAttribute('src');backgroundVideo?.load();backgroundVideo=video;video?.play().catch(()=>{});
@@ -225,7 +227,7 @@ const MEDIA_CATALOG={
  tolmin:{id:'tolmin',title:'톨민 패러글라이딩',type:'360',sources:['./assets/tolmin/tolmin-paragliding-360.webm'],desc:'360° VR 파노라마',duration:50.6}
 };
 const DOME={radius:80,width:100,elevation:5};   // 2026-11-02 사용자: "티브이 너무 높아" → 가운데 높이 14°→5°
-let currentMediaId='odyssey',currentMediaType='pov';
+let currentMediaId='odyssey',currentMediaType='pov',tvSkipped=false;
 let dome=null,domeMeshGroup=null,domeScreenMesh=null;
 let flatMeshGroup=null,flatScreenMesh=null;
 let pano360Mesh=null;
@@ -324,8 +326,10 @@ async function loadTvMedia(mediaId){
   }
  };
 
- let loadedVideo=null;
+ let loadedVideo=null;tvSkipped=false;
  for(const src of meta.sources){
+  if(myEpoch!==mediaLoadEpoch)return;
+  if(!await askBigDownload(src,meta.title)){tvSkipped=true;continue;}   // 큰 영상은 먼저 묻는다(download-guard.js). 안 받으면 다음 후보(시험 영상)로
   if(myEpoch!==mediaLoadEpoch)return;
   const v=await downloadVideoWithProgress(src,onProgress);
   if(v){loadedVideo=v;break;}
@@ -333,7 +337,7 @@ async function loadTvMedia(mediaId){
 
  if(myEpoch!==mediaLoadEpoch)return;
  if(!loadedVideo){
-  drawDomePlaceholder('영상을 불러오지 못했어요',mediaId);
+  drawDomePlaceholder(tvSkipped?`${meta.title} · 받지 않았어요 (TV 패널에서 다시 고르면 받아요)`:'영상을 불러오지 못했어요',mediaId);
   return;
  }
 
@@ -591,6 +595,7 @@ async function init() {
   onPovError:message=>{povNotice=message;povNoticeUntil=performance.now()+3000;},
   onViewPov:(autoTriggered=false)=>{if(!autoTriggered)enablePovAudio();multiplayer.openChat(false);watchPov(autoTriggered);},
   getLocalPovProgress:()=>({progress:povState.localProgress,ready:povState.localReady,duration:povState.duration}),
+  getMedia:id=>MEDIA_CATALOG[id],defaultMedia:currentMediaId,
   onConnection:connected=>{
    soyu.setRoomConnected(connected);povConnected=connected;
    if(!connected&&povShared){povShared={...povShared,position:povTimeline(),playing:false,waiting:false,serverTime:povServerNow()};povEpoch++;domeVideo?.pause();}
@@ -855,6 +860,7 @@ function setupTvUI(){
   btn.addEventListener('click',()=>{
    const id=btn.dataset.mediaId;
    if(id&&multiplayer){
+    if(id===currentMediaId&&tvSkipped){loadTvMedia(id);return;}   // 크기 묻는 창에서 "나중에"를 눌렀던 영상을 다시 고르면 다시 묻는다
     multiplayer.controlPov('select',id);
    }
   });
@@ -885,6 +891,11 @@ function setupShareUI(){
    if(pubInput) pubInput.value=data.publicUrl || (data.publicIp!=='확인 불가'?`http://${data.publicIp}:${data.port}/`:'공인 IP를 가져오지 못했어요');
    if(guideLan && data.lanIp) guideLan.textContent=data.lanIp;
   } catch {
+   if(await noServer()){   // 서버 없는 공개 페이지(GitHub Pages): 이 페이지 주소 자체가 공유 주소
+    if(lanInput) lanInput.value='로컬 서버(serve.py)로 열 때만 나와요';
+    if(pubInput) pubInput.value=location.href.split('#')[0];
+    return;
+   }
    const port=location.port||'4400';
    const host=location.hostname;
    if(lanInput) lanInput.value=`http://${host}:${port}/`;
