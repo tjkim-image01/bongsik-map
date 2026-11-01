@@ -1,0 +1,114 @@
+{
+  "panels": [
+    {
+      "name": "painting-01",
+      "title": "노을 속 한강의 비행선",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a small airship floating over the Han River in Seoul at golden sunset, bridges and city lights below",
+      "out": "assets/gallery/painting-01.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-01.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-02",
+      "title": "비 오는 골목의 우산들",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a narrow rainy alley seen from above, many colorful umbrellas, reflections on wet stone",
+      "out": "assets/gallery/painting-02.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-02.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-03",
+      "title": "눈 내리는 남산",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: Namsan hill with N Seoul Tower under falling snow at dusk, warm windows, blue shadows",
+      "out": "assets/gallery/painting-03.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-03.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-04",
+      "title": "구름 바다의 아침",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a sea of clouds at sunrise seen from a mountain top, pink and gold light",
+      "out": "assets/gallery/painting-04.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-04.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-05",
+      "title": "춤추는 빛",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: an abstract dancing figure made of swirling ribbons of light and color on a deep blue ground",
+      "out": "assets/gallery/painting-05.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-05.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-06",
+      "title": "호수 위의 작은 섬",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a small island with a white church on a turquoise alpine lake, surrounded by green mountains",
+      "out": "assets/gallery/painting-06.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-06.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-07",
+      "title": "산을 나는 사람",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a paraglider with an orange wing flying above snowy rocky peaks and green valleys",
+      "out": "assets/gallery/painting-07.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-07.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-08",
+      "title": "반딧불 들판",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a summer night meadow full of fireflies under a starry sky, a lone tree",
+      "out": "assets/gallery/painting-08.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-08.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-09",
+      "title": "폭풍 속 등대",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a lighthouse on rocks in a stormy sea, dramatic waves and a beam of light through dark clouds",
+      "out": "assets/gallery/painting-09.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-09.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    },
+    {
+      "name": "painting-10",
+      "title": "꽃시장 정물",
+      "prompt": "Original expressive oil painting on canvas, part of a small painting series for a virtual sky gallery. Thick impasto and palette-knife texture, visible brush strokes, rich but harmonious colors. Show ONLY the painted canvas surface, edge to edge, front-on and flat: no frame, no wall, no easel, no text, no signature. Portrait 4:5 composition. Subject: a still life of a vase of peonies and wildflowers on a wooden table by a sunny window",
+      "out": "assets/gallery/painting-10.png",
+      "reference_images": [],
+      "generated": true,
+      "saved": "/Users/jatu/app/bongsik/project-map/m002/assets/gallery/painting-10.png",
+      "conversation_id": "6ae76cc7-eb34-83ec-99ea-dd9a058a2b54",
+      "generator": "chatgpt.com/images (aside)"
+    }
+  ]
+}

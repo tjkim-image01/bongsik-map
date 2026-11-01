@@ -1,0 +1,72 @@
+[
+  {
+    "id": "kloofendal",
+    "name": "클루펜달 언덕",
+    "en_name": "Kloofendal 48d Partly Cloudy",
+    "path": "./assets/panoramas/kloofendal.jpg",
+    "sun": "0xfff0dd"
+  },
+  {
+    "id": "sunflowers",
+    "name": "해바라기 들판",
+    "en_name": "Sunflowers Field",
+    "path": "./assets/panoramas/sunflowers.jpg",
+    "sun": "0xffeed5"
+  },
+  {
+    "id": "cape_hill",
+    "name": "케이프 해안 언덕",
+    "en_name": "Cape Hill Ocean View",
+    "path": "./assets/panoramas/cape_hill.jpg",
+    "sun": "0xfff6eb"
+  },
+  {
+    "id": "kiara_dawn",
+    "name": "키아라 산맥 일출",
+    "en_name": "Kiara 1 Dawn",
+    "path": "./assets/panoramas/kiara_dawn.jpg",
+    "sun": "0xffcf99"
+  },
+  {
+    "id": "spruit_sunrise",
+    "name": "스프루이트 강변 일출",
+    "en_name": "Spruit Sunrise River",
+    "path": "./assets/panoramas/spruit_sunrise.jpg",
+    "sun": "0xffd7aa"
+  },
+  {
+    "id": "rural_landscape",
+    "name": "평화로운 시골 전원",
+    "en_name": "Rural Landscape",
+    "path": "./assets/panoramas/rural_landscape.jpg",
+    "sun": "0xfff0dc"
+  },
+  {
+    "id": "satara_night",
+    "name": "사타라 은하수 밤하늘",
+    "en_name": "Satara Night Milky Way",
+    "path": "./assets/panoramas/satara_night.jpg",
+    "sun": "0x5878a8"
+  },
+  {
+    "id": "syferfontein",
+    "name": "자이퍼폰테인 맑은 하늘",
+    "en_name": "Syferfontein Clear Sky",
+    "path": "./assets/panoramas/syferfontein.jpg",
+    "sun": "0xfff8ee"
+  },
+  {
+    "id": "green_sanctuary",
+    "name": "초록 숲속 성역",
+    "en_name": "Green Sanctuary Forest",
+    "path": "./assets/panoramas/green_sanctuary.jpg",
+    "sun": "0xd5f0c8"
+  },
+  {
+    "id": "autumn_field",
+    "name": "가을빛 들판",
+    "en_name": "Autumn Field",
+    "path": "./assets/panoramas/autumn_field.jpg",
+    "sun": "0xffe2b8"
+  }
+]
