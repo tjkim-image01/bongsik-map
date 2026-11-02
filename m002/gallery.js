@@ -9,7 +9,8 @@
 // - 그림은 Aside ChatGPT로 그린 assets/gallery/painting-NN.png(titles.json). 아직 없으면 임시 그림을 보여 주고 15초마다 다시 찾는다.
 // - 켜기·끄기(2026-11-02 사용자: "드론모드 끄는것도 넣어줘.. 저거 티브이의 기능중 하나에 포함 시켜주고...티브이 키고 발표 모드로 바꾸는거야..
 //   티브이의 메뉴중 기타에 드론겔러리 추가 해줘"): 처음엔 꺼져 있다. TV 패널 → 📺 TV 화면 → 기타 → 드론 갤러리로 켜면(방 전체) TV가 켜지고
-//   드론이 차례로 날아와 강단이 나온다. 끄면 발표가 끝나고 드론은 왔던 길(멀리 아래)로 돌아가며 강단이 사라진다.
+//   드론이 차례로 날아온다. 끄면 발표가 끝나고 드론은 왔던 길(멀리 아래)로 돌아간다.
+// - 강단은 늘 있다(2026-11-02 사용자: "강단 근처 가서 클릭을 해.. 그러면 어떤 강의를 할지 메뉴가 나와" — 강단 메뉴는 ui-dock.js).
 import * as THREE from 'three';
 
 const BASE = './assets/gallery/';
@@ -99,7 +100,7 @@ export function createGallery({ getPlayer, getScreens, send, getMyId, onShow }) 
       d.pos.copy(d.exit); d.start = now + .8 + i * ENTER_GAP; d.root.position.copy(d.pos); d.root.visible = false;
       parent.add(d.root); drones.push(d); tryLoad(d);
     });
-    podium = makePodium(); podium.position.set(PODIUM.x, floorY, PODIUM.z); podium.rotation.y = Math.PI; podium.visible = show.on; parent.add(podium);
+    podium = makePodium(); podium.position.set(PODIUM.x, floorY, PODIUM.z); podium.rotation.y = Math.PI; parent.add(podium);
     setInterval(() => drones.forEach(tryLoad), 15000);
   }
 
@@ -187,7 +188,6 @@ export function createGallery({ getPlayer, getScreens, send, getMyId, onShow }) 
     if (id) myId = id;
     const was = show.on;
     show = { on: !!next?.on, presenter: next?.presenter ?? null, index: next?.index ?? -1, count: next?.count ?? 0 }; lastKey = '';
-    if (podium) podium.visible = show.on;
     if (show.on && !was) drones.forEach((d, i) => { if (!d.root.visible) { d.pos.copy(d.exit); d.root.position.copy(d.pos); } d.start = t + .3 + i * ENTER_GAP; });   // 하나씩 다시 날아온다
     if (show.on !== was) onShow?.(show.on);
   }
@@ -196,6 +196,7 @@ export function createGallery({ getPlayer, getScreens, send, getMyId, onShow }) 
   return {
     apply,
     isOn: () => show.on,
+    podium: () => podium,   // ui-dock.js: 강단을 누르면 강의 메뉴
     setOn: (on) => { if (on !== show.on) act(on ? 'on' : 'off'); },
     // tv-zoom.js: 그림 더블클릭 → 크게 보기
     zoomTargets: () => drones.filter(d => d.root.visible).map(d => ({ mesh: d.canvas, source: d.canvas.material.map?.image, label: d.title })),

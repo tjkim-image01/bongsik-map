@@ -21,20 +21,21 @@ export async function createLayeredPanorama({ manifestURL, loader, renderer }) {
 
   const root = new THREE.Group(); root.name = 'LayeredImagePanorama'; root.visible = false;
   const geometry = new THREE.SphereGeometry(1, 128, 64);
-  const anchor = new THREE.Vector3(...(config.anchor || [0, 70, 0]));
+  const anchor = new THREE.Vector3(...(config.anchor || [0, 1.65, 0]));
   const observer = new THREE.Vector3(), displacement = new THREE.Vector3();
   const settings = { amount: 1, clouds: true, preview: false };
   const layers = results.map(({ value: layer }, index) => {
     const material = new THREE.ShaderMaterial({
       side: THREE.BackSide, transparent: true, depthWrite: false, toneMapped: false,
-      uniforms: { image: { value: layer.texture }, seam: { value: .045 } },
+      uniforms: { image: { value: layer.texture }, seam: { value: .045 }, elevation: { value: layer.elevation || 0 } },
       vertexShader: `varying vec3 vLocal;
         void main(){vLocal=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-      fragmentShader: `uniform sampler2D image;uniform float seam;varying vec3 vLocal;
+      fragmentShader: `uniform sampler2D image;uniform float seam,elevation;varying vec3 vLocal;
         const float PI=3.141592653589793;
         void main(){
           vec3 d=normalize(vLocal);
           vec2 uv=vec2(fract(.5+atan(d.x,-d.z)/(2.*PI)),.5+asin(clamp(d.y,-1.,1.))/PI);
+          uv.y=clamp(uv.y+elevation,0.,1.);
           // Overlap the two image edges instead of exposing an AI panorama's hard seam.
           float u=uv.x*(1.-seam)+seam;
           vec4 a=texture2D(image,vec2(u,uv.y));

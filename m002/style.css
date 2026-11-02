@@ -196,6 +196,18 @@ body.ui-hidden .hint {
 .tv-tab-pane { display: flex; flex-direction: column; gap: 10px; }
 .tv-tab-pane[hidden] { display: none !important; }
 .tv-section-desc { font-size: 11px; color: #94a3b8; line-height: 1.4; margin-bottom: 2px; }
+.tv-panel .tv-content { min-height: 0; overflow-y: auto; }
+.panorama-controls { margin: 10px 0; padding: 12px; border: 1px solid #e4c99b55; border-radius: 8px; background: #e4c99b0a; }
+.panorama-controls[hidden] { display: none; }
+.panorama-controls legend { padding: 0 5px; color: #e4c99b; font-size: 12px; }
+.panorama-modes { display: flex; gap: 6px; margin-bottom: 12px; }
+.panorama-modes button { flex: 1; padding: 7px 3px; border: 1px solid #ffffff30; border-radius: 6px; background: transparent; color: #cbd5e1; font: inherit; font-size: 11px; cursor: pointer; }
+.panorama-modes button[aria-pressed="true"] { background: #e4c99b; border-color: #e4c99b; color: #18232c; }
+.panorama-range { display: flex; justify-content: space-between; font-size: 12px; }
+.panorama-controls input[type="range"] { display: block; width: 100%; margin: 8px 0 12px; accent-color: #e4c99b; }
+.panorama-check { display: inline-flex; align-items: center; gap: 5px; margin: 0 8px 6px 0; font-size: 11px; cursor: pointer; }
+.panorama-check input { accent-color: #e4c99b; }
+.panorama-controls p { margin: 5px 0 0; font-size: 11px; color: #aebdcb; line-height: 1.6; }
 .tv-media-list.scrollable { max-height: 320px; overflow-y: auto; padding-right: 4px; gap: 6px; }
 .tv-media-list.scrollable::-webkit-scrollbar { width: 5px; }
 .tv-media-list.scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -203,6 +215,3 @@ body.ui-hidden .hint {
 
 /* TV 화면 탭의 '기타' 묶음(드론 갤러리) */
 .tv-extra-title{margin-top:14px;padding-top:10px;border-top:1px solid #ffffff1a}
-/* 소유 플레이 패널: 소유 5m 안으로 들어오면 미끄러져 나온다(main.js syncSoyuNear) */
-#dance:not([hidden]){animation:soyu-near .4s cubic-bezier(.16,1.25,.4,1)}
-@keyframes soyu-near{from{opacity:0;transform:translateX(-18px)}}

@@ -1,0 +1,10 @@
+{
+  "title": "구름 위 산맥",
+  "anchor": [0, 1.65, 0],
+  "layers": [
+    { "id": "sky", "image": "sky.png", "radius": 9000, "fixedSky": true },
+    { "id": "mountains", "image": "mountains.png", "radius": 1200 },
+    { "id": "clouds", "image": "clouds.svg", "radius": 480, "cloud": true, "drift": 0.003 },
+    { "id": "ridge", "image": "ridge.png", "radius": 220, "elevation": 0.075 }
+  ]
+}

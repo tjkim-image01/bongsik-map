@@ -4,6 +4,7 @@ import { createSoyu } from './dance.js';
 import { createMultiplayer } from './multiplayer.js';
 import { askBigDownload } from './download-guard.js';
 import { noServer } from './solo-room.js';
+import { createDock } from './ui-dock.js';
 import { createAvatarFactory } from './avatars.js';
 import { createVoice } from './voice.js';
 import { createTvZoom } from './tv-zoom.js';
@@ -663,6 +664,7 @@ async function init() {
  $('gallery-toggle').addEventListener('click',()=>{const on=!window.gallery.isOn();window.gallery.setOn(on);if(on&&povIsPlaying())multiplayer?.controlPov('pause');});
  window.voice=createVoice({scene,camera,getSelf:()=>multiplayer.getState(),getPlayer:()=>player,getScreens:tvScreens,onWeather:w=>window.weather.apply(w),onGallery:(g,id)=>window.gallery.apply(g,id)});   // 한 명만 말하기·화면 공유(voice.js)
  window.tvZoom=createTvZoom({camera,canvas,getScreens:tvScreens,getShare:()=>window.voice.getShareView(),getExtra:()=>window.gallery.zoomTargets()});   // TV·그림 두 번 눌러 크게 보기(tv-zoom.js)
+ window.dock=createDock({camera,canvas,getPlayer:()=>player,soyu,gallery:window.gallery});   // 화면 정리: 오른쪽 아이콘 줄·소유/강단 메뉴(ui-dock.js)
  const domeCenter=()=>{
   if(!domeScreenMesh)return [0,0,0];
   domeScreenMesh.geometry.computeBoundingSphere();
@@ -826,7 +828,7 @@ function tick(now) {
 
  syncLocalMotion(now/1000);
  localAvatar.animate(state.motion,state.motionTime);
- if(soyu){soyu.update();syncDanceUI();syncSoyuNear();}
+ if(soyu){soyu.update();syncDanceUI();}
  syncPovVideo();syncPovUI();
  multiplayer?.update(dt);
  root.updateMatrixWorld(true);sun.position.set(-25+cruise.position.x,45+cruise.position.y,35+cruise.position.z);sun.target.position.copy(cruise.position);
@@ -852,15 +854,6 @@ function setupDanceUI(){
  $('stage-sound').addEventListener('click',()=>soyu.enableAudio());
  soyu.audio.addEventListener('ended',()=>syncDanceUI());
  $('watch').addEventListener('click',watchSoyu);
- $('dance').hidden=true;   // 소유 가까이 가면 나온다(syncSoyuNear)
-}
-// 소유 플레이 패널(2026-11-02 사용자: "소유 반경 5미터에 가면 소유 플레이가 자동으로 화면에 나오고 플레이 누르면 춤도 추고 소리가 나도록").
-// 소유에게서 5m 안이면 나오고 5.5m 밖이면 들어간다(경계에서 깜빡이지 않게). 관전 모드에서는 늘 보인다. 재생 버튼은 소리도 같이 켠다(toggleDance)
-const SOYU_NEAR=5;let soyuNear=false;
-function syncSoyuNear(){
- if(!soyu)return;soyu.center(soyuC);
- const d=Math.hypot(player.position.x-soyuC.x,player.position.z-soyuC.z),near=state.mode==='watch'||d<(soyuNear?SOYU_NEAR+.5:SOYU_NEAR);
- if(near!==soyuNear){soyuNear=near;$('dance').hidden=!near;}
 }
 function toggleDance(){
  if(!soyu||!multiplayer||$('dance-play').disabled)return;

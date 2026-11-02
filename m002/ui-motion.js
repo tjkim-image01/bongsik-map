@@ -3,9 +3,11 @@
 // 1) 움직임: 숨길 때 각 UI 덩어리가 자기와 가장 가까운 화면 가장자리로 흐려지며 빠져나가고, 누른 자리에서 가까운 것부터 물결처럼 차례로 움직인다.
 //    다시 보일 때는 같은 길로 돌아온다. 위치는 숨기는 순간의 화면 배치로 계산한다(화면 크기·열린 패널이 달라도 맞게).
 // 2) 모바일(폭 900px 이하나 터치 화면): 오른쪽 가운데에 늘 떠 있는 둥근 버튼 하나로 숨기기/보이기를 오간다(위쪽 👁·복원 버튼 대신).
+//    숨겨도 이동 화살표는 남긴다(2026-11-02 사용자: "모바일일때 눈그림 클릭하면 이동 화살 표는 화면에 보이도록 해주고").
 const PARTS = ['.topbar', '.views', '.location', '.bottom-bar', '.navigation', '.chat-toggle', '.tv-toggle', '.share-toggle', '.presence', '.dance',
-  '.avatar-actions', '.chat-panel', '.tv-panel', '.share-panel', '.stage-notice', '.hint', '.voice-ui', '.weather-btn', '.weather-panel', '.gallery-bar'];
-const OUT = .42, WAVE = .2;   // 한 덩어리가 빠지는 시간, 첫 덩어리와 마지막 덩어리 사이 시차(초)
+  '.avatar-actions', '.chat-panel', '.tv-panel', '.share-panel', '.stage-notice', '.hint', '.voice-ui', '.weather-btn', '.weather-panel', '.gallery-bar', '.dock'];
+const OUT = .42, WAVE = .2;
+const mobile = matchMedia('(max-width:900px),(pointer:coarse)');   // 한 덩어리가 빠지는 시간, 첫 덩어리와 마지막 덩어리 사이 시차(초)
 
 const style = document.createElement('style');
 const list = (prefix) => PARTS.map(p => `${prefix} ${p}`).join(',');
@@ -23,7 +25,8 @@ body.ui-hidden .voice-ui,body.ui-hidden .weather-btn,body.ui-hidden .weather-pan
 body.ui-hidden .ui-fab{background:rgba(18,28,34,.3);opacity:.6}
 body.ui-hidden .ui-fab svg{rotate:180deg}
 .ui-fab .eye-off{display:none}body.ui-hidden .ui-fab .eye-on{display:none}body.ui-hidden .ui-fab .eye-off{display:inline}
-@media (max-width:900px),(pointer:coarse){.ui-fab{display:grid}.ui-restore-btn{display:none!important}#ui-toggle{display:none}}
+@media (max-width:900px),(pointer:coarse){.ui-fab{display:grid}.ui-restore-btn{display:none!important}#ui-toggle{display:none}
+body.ui-hidden .navigation{opacity:1!important;visibility:visible!important;pointer-events:auto!important;translate:none!important;scale:1!important;filter:none!important}}
 `;
 document.head.append(style);
 
@@ -45,7 +48,7 @@ function prepare() {
   document.body.classList.add('ui-moving'); clearTimeout(moving);
   moving = setTimeout(() => document.body.classList.remove('ui-moving'), (OUT + WAVE + .3) * 1000);
   for (const el of document.querySelectorAll(PARTS.join(','))) {
-    if (el.hidden || el === fab) continue;
+    if (el.hidden || el === fab || (mobile.matches && el.matches('.navigation'))) continue;
     if (hiding) {
       const r = el.getBoundingClientRect();   // 아직 보이는 자리
       if (!r.width && !r.height) continue;
