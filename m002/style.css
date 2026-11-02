@@ -90,11 +90,11 @@
 .tv-action-btn:hover{background:#ffffff25}
 .tv-section-title{font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
 .tv-media-list{display:flex;flex-direction:column;gap:6px}
-.tv-media-btn,.tv-bg-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 10px;border:1px solid #ffffff22;border-radius:6px;background:#ffffff0a;color:#e5e7eb;text-align:left;cursor:pointer;transition:all .15s ease}
-.tv-media-btn:hover,.tv-bg-btn:hover{background:#ffffff18;border-color:#e4c99b66}
-.tv-media-btn.active,.tv-bg-btn.active{background:#e4c99b22;border-color:var(--accent);color:#fff}
-.tv-media-btn b,.tv-bg-btn b{font-size:12px;color:var(--accent)}
-.tv-media-btn small,.tv-bg-btn small{font-size:10px;color:#9ca3af}
+.tv-media-btn,.tv-bg-btn,.tv-extra-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 10px;border:1px solid #ffffff22;border-radius:6px;background:#ffffff0a;color:#e5e7eb;text-align:left;cursor:pointer;transition:all .15s ease}
+.tv-media-btn:hover,.tv-bg-btn:hover,.tv-extra-btn:hover{background:#ffffff18;border-color:#e4c99b66}
+.tv-media-btn.active,.tv-bg-btn.active,.tv-extra-btn.active{background:#e4c99b22;border-color:var(--accent);color:#fff}
+.tv-media-btn b,.tv-bg-btn b,.tv-extra-btn b{font-size:12px;color:var(--accent)}
+.tv-media-btn small,.tv-bg-btn small,.tv-extra-btn small{font-size:10px;color:#9ca3af}
 .presence{left:96px;top:140px;max-width:calc(100% - 200px)}
 .dance{left:40px;right:auto;top:288px;bottom:auto;transform:none;flex-direction:column;align-items:stretch;gap:8px;width:190px;min-width:0;padding:10px}
 .dance.pov{top:410px}
@@ -200,3 +200,6 @@ body.ui-hidden .hint {
 .tv-media-list.scrollable::-webkit-scrollbar { width: 5px; }
 .tv-media-list.scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 .tv-media-list.scrollable::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* TV 화면 탭의 '기타' 묶음(드론 갤러리) */
+.tv-extra-title{margin-top:14px;padding-top:10px;border-top:1px solid #ffffff1a}

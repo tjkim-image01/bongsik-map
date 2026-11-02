@@ -446,6 +446,12 @@ function enablePovAudio() {
  }
  syncPovUI();
 }
+function showGallery(on) {   // 드론 갤러리가 켜지고 꺼질 때(방 전체, gallery.js)
+ if(on)setDome(true);
+ const btn=$('gallery-toggle');btn.classList.toggle('active',on);btn.setAttribute('aria-pressed',String(on));
+ btn.querySelector('b').textContent=on?'🛸 드론 갤러리 · 켜짐':'🛸 드론 갤러리';
+ btn.querySelector('small').textContent=on?'누르면 드론이 그림을 들고 돌아가요':'TV를 켜고 발표 모드로 · 드론이 그림을 들고 둘러싸요';
+}
 function setDome(on) {
  if(!dome)return;
  dome.visible=on;
@@ -613,7 +619,9 @@ async function init() {
  window.multiplayer=multiplayer;
  const tvScreens=()=>({dome:domeScreenMesh,flat:flatScreenMesh,type:currentMediaType,on:dome?.visible??true});
  window.weather=createWeather({scene,camera,getShip:()=>cruise,send:(kind,level)=>window.voice?.sendWeather(kind,level)});   // 방 전체 날씨(weather.js)
- window.gallery=createGallery({getPlayer:()=>player,getScreens:tvScreens,send:(action,count)=>window.voice?.sendGallery(action,count),getMyId:()=>window.voice?.myId()});   // 드론 그림 전시·발표(gallery.js)
+ window.gallery=createGallery({getPlayer:()=>player,getScreens:tvScreens,send:(action,count)=>window.voice?.sendGallery(action,count),getMyId:()=>window.voice?.myId(),onShow:showGallery});   // 드론 그림 전시·발표(gallery.js)
+ // TV 패널 → 📺 TV 화면 → 기타 → 드론 갤러리(2026-11-02 사용자: "티브이 키고 발표 모드로 바꾸는거야"). 켜면 TV가 켜지고 상영 중인 영상은 멈춘다(그림이 TV 앞에 온다)
+ $('gallery-toggle').addEventListener('click',()=>{const on=!window.gallery.isOn();window.gallery.setOn(on);if(on&&povIsPlaying())multiplayer?.controlPov('pause');});
  window.voice=createVoice({scene,camera,getSelf:()=>multiplayer.getState(),getPlayer:()=>player,getScreens:tvScreens,onWeather:w=>window.weather.apply(w),onGallery:(g,id)=>window.gallery.apply(g,id)});   // 한 명만 말하기·화면 공유(voice.js)
  window.tvZoom=createTvZoom({camera,canvas,getScreens:tvScreens,getShare:()=>window.voice.getShareView(),getExtra:()=>window.gallery.zoomTargets()});   // TV·그림 두 번 눌러 크게 보기(tv-zoom.js)
  const domeCenter=()=>{
