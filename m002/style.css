@@ -203,3 +203,6 @@ body.ui-hidden .hint {
 
 /* TV 화면 탭의 '기타' 묶음(드론 갤러리) */
 .tv-extra-title{margin-top:14px;padding-top:10px;border-top:1px solid #ffffff1a}
+/* 소유 플레이 패널: 소유 5m 안으로 들어오면 미끄러져 나온다(main.js syncSoyuNear) */
+#dance:not([hidden]){animation:soyu-near .4s cubic-bezier(.16,1.25,.4,1)}
+@keyframes soyu-near{from{opacity:0;transform:translateX(-18px)}}

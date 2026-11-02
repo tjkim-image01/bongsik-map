@@ -9,6 +9,7 @@ import { createVoice } from './voice.js';
 import { createTvZoom } from './tv-zoom.js';
 import { createWeather } from './weather.js';
 import { createGallery } from './gallery.js';
+import { createLayeredPanorama } from './layered-panorama.js';
 import './ui-motion.js';   // 화면 정리: 숨길 때 가장자리로 물결처럼 빠지는 움직임 + 모바일 숨기기/보이기 버튼
 
 const $ = (id) => document.getElementById(id);
@@ -40,6 +41,13 @@ const presets = {
 // 배경 목록. 서울 = m001 원통 그림(전체·앞·왼쪽·뒤·오른쪽 순), 나머지 = 360° 영상(Wikimedia Commons, CC BY 3.0).
 // frontU = 정면(−z)에 둘 영상 가로 위치(0~1). views = [버튼, 작은 제목, 제목, 설명]. sun = 햇빛 색
 const BACKGROUNDS = {
+ alpine_layers:{short:'입체 산맥',name:'구름 위 산맥',eyebrow:'ALPINE DAWN · LAYERED IMAGE PANORAMA',tagline:'그림 사이를 흐르는 바람, 걸을 때 달라지는 풍경.',sun:0xffdfb4,
+  layersManifest:'./assets/layered-alpine/manifest.json',
+  credit:'배경: 이 공간용 AI 생성 파노라마 3장 + 벡터 안개 · 하늘·먼 산·구름·가까운 능선의 4겹 시차',
+  views:{tower:['산맥과 계곡','LAYERED MOUNTAINS','그림 사이에 깊이가 생겨요.','산책하거나 천천히 비행하면 가까운 능선과 먼 산이 서로 다르게 움직여요.'],
+   yeouido:['아침빛','GOLDEN DAWN','구름 위로 번지는 아침.','서로 다른 거리의 이미지가 하나의 풍경으로 겹쳐집니다.'],
+   hangang:['가까운 능선','NEAR RIDGE','손에 닿을 듯한 능선.','미디어 & 배경 센터에서 입체 강도를 바꾸고 정지 화면과 비교해 보세요.'],
+   overview:['부유선 전체','THE AIRSHIP','산맥 사이의 작은 전망대.','천천히 비행을 켜면 층마다 다른 움직임을 더 쉽게 느낄 수 있어요.']}},
  paris:{short:'파리',name:'파리 상공',eyebrow:'PARIS · EIFFEL TOWER 360°',tagline:'세느강 위, 에펠탑과 파리 시내를 내려다보는 시간.',sun:0xffe4b5,
   files:['paris/paris-panorama-reference.png','paris/paris-eiffel.png','paris/paris-montmartre.png','paris/paris-west.png','paris/paris-river.png'],
   credit:'배경 그림: 파리 상공 파노라마 5분할 고해상도 원통 쉐이더 (m001/v002)',
@@ -154,6 +162,24 @@ const fill=new THREE.DirectionalLight(0xe1eaff,1.05);fill.position.set(8,12,-18)
 // 360° 영상 배경(2026-11-01 사용자: "유투브 입체 영상 이 공간에서 플레이 가능해?" → 1번 "360 영상 파일을 배경에"): 2:1 equirectangular 영상을 카메라를 감싼 공 안쪽에 입힌다.
 // 공은 매 프레임 카메라 위치로 옮겨 무한히 먼 배경처럼 보이게 한다. 배경 버튼으로 BACKGROUNDS 사이를 바꾼다(각자 화면만, 공유하지 않음)
 let backgroundKey=null, backgroundVideo=null, backgroundEnv=null, backgroundLoading=false, seoulSky=null, cylinderSkyMap={};
+const layeredSkies = new Map();
+let panoramaSettings={amount:1,clouds:true,preview:false};
+try {
+ const saved=JSON.parse(localStorage.getItem('m002-panorama-settings'));
+ if(saved&&Number.isFinite(saved.amount))panoramaSettings.amount=THREE.MathUtils.clamp(saved.amount,0,2);
+ if(typeof saved?.clouds==='boolean')panoramaSettings.clouds=saved.clouds;
+}catch{}
+function syncPanoramaControls(){
+ $('panorama-controls').hidden=!BACKGROUNDS[backgroundKey]?.layersManifest;
+ $('panorama-amount').value=panoramaSettings.amount;
+ $('panorama-amount-value').value=panoramaSettings.amount===0?'정지':`${panoramaSettings.amount.toFixed(1)}배`;
+ $('panorama-flat').setAttribute('aria-pressed',String(panoramaSettings.amount===0));
+ $('panorama-depth').setAttribute('aria-pressed',String(panoramaSettings.amount>0));
+ $('panorama-clouds').checked=panoramaSettings.clouds;
+ $('panorama-preview').checked=panoramaSettings.preview;
+ for(const panorama of layeredSkies.values())panorama.configure(panoramaSettings);
+ try{localStorage.setItem('m002-panorama-settings',JSON.stringify({amount:panoramaSettings.amount,clouds:panoramaSettings.clouds}));}catch{}
+}
 function loadVideo(src) {
  if(!src) return Promise.resolve(null);
  const video=document.createElement('video');Object.assign(video,{src,loop:true,muted:true,playsInline:true,preload:'auto'});video.setAttribute('playsinline','');
@@ -188,24 +214,37 @@ async function useBackground(key) {
  const bg=BACKGROUNDS[key];if(!bg||backgroundLoading||key===backgroundKey)return;backgroundLoading=true;$('bg-switch').disabled=true;
  try {
   const old=background.material.map;
-  if(bg.files){
+  if(bg.layersManifest){
+   let panorama=layeredSkies.get(key);
+   if(!panorama){
+    panorama=await createLayeredPanorama({manifestURL:bg.layersManifest,loader:textureLoader,renderer});
+    scene.add(panorama.root);layeredSkies.set(key,panorama);
+   }
+   setEnvironment(panorama.environment);
+   for(const item of layeredSkies.values())item.root.visible=item===panorama;
+   for(const item of Object.values(cylinderSkyMap))item.sky.visible=false;
+   background.visible=false;background.material.map=null;
+   backgroundVideo?.pause();backgroundVideo?.removeAttribute('src');backgroundVideo?.load();backgroundVideo=null;
+  } else if(bg.files){
    if(!cylinderSkyMap[key]){
     const textures=await Promise.all(bg.files.map(async name=>{const t=await textureLoader.loadAsync(`./assets/${name}`);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;}));
     cylinderSkyMap[key]={sky:createSeoulSky(textures),envTex:textures[0]};
    }
+   for(const panorama of layeredSkies.values())panorama.root.visible=false;
    for(const k of Object.keys(cylinderSkyMap)){cylinderSkyMap[k].sky.visible=(k===key);}
    background.visible=false;background.material.map=null;
    backgroundVideo?.pause();backgroundVideo?.removeAttribute('src');backgroundVideo?.load();backgroundVideo=null;setEnvironment(cylinderSkyMap[key].envTex);
   } else {
-   for(const k of Object.keys(cylinderSkyMap)){cylinderSkyMap[k].sky.visible=false;}
    const [poster,video]=await Promise.all([textureLoader.loadAsync(bg.poster),askBigDownload(bg.video,bg.name).then(ok=>ok?loadVideo(bg.video):null)]);poster.colorSpace=THREE.SRGBColorSpace;   // 정지 그림 = 조명 반사용, 영상을 못 읽으면 배경으로도 쓴다
    const map=video?new THREE.VideoTexture(video):poster;map.colorSpace=THREE.SRGBColorSpace;
    background.material.map=map;background.visible=true;background.rotation.y=Math.PI*2*(bg.frontU-.75);for(const k of Object.keys(cylinderSkyMap)){cylinderSkyMap[k].sky.visible=false;}
+   for(const panorama of layeredSkies.values())panorama.root.visible=false;
    backgroundVideo?.pause();backgroundVideo?.removeAttribute('src');backgroundVideo?.load();backgroundVideo=video;video?.play().catch(()=>{});
    setEnvironment(poster);if(map!==poster)poster.dispose();
   }
   background.material.needsUpdate=true;if(old&&old!==background.material.map)old.dispose();sun.color.set(bg.sun);
   backgroundKey=key;try{localStorage.setItem('m002-background',key);}catch{}
+  syncPanoramaControls();
   const identity=document.querySelector('.identity');identity.querySelector('.eyebrow').textContent=bg.eyebrow;identity.querySelector('h1').textContent=bg.name;identity.querySelector('p').textContent=bg.tagline;document.title=`${bg.name} · 소유의 춤`;
   for(const [name,[label,kicker,title,description]] of Object.entries(bg.views)){Object.assign(presets[name],{kicker,title,description});document.querySelector(`[data-view="${name}"]`).textContent=label;}
   if(typeof bg.credit==='string')$('bg-credit').textContent=bg.credit;
@@ -646,6 +685,7 @@ async function init() {
    },
    dance:soyu&&{time:soyu.time,playing:soyu.playing,duration:soyu.duration,center:soyu.center().toArray(),shared:soyu.sharedState},
    video:backgroundVideo&&{src:backgroundVideo.currentSrc,time:backgroundVideo.currentTime,paused:backgroundVideo.paused,size:[backgroundVideo.videoWidth,backgroundVideo.videoHeight]},
+   panorama:layeredSkies.get(backgroundKey)?.getState()??null,
   }),
   dance:()=>soyu,
   pov:()=>({
@@ -661,6 +701,7 @@ async function init() {
    },
   }),
   setView,setMode,togglePerspective,setAction,watchPov,reset,step:()=>step(1),toggleLookMode,getLookMode:()=>lookMode,
+  useBackground,
  };
 }
 function setView(name) {
@@ -785,11 +826,13 @@ function tick(now) {
 
  syncLocalMotion(now/1000);
  localAvatar.animate(state.motion,state.motionTime);
- if(soyu){soyu.update();syncDanceUI();}
+ if(soyu){soyu.update();syncDanceUI();syncSoyuNear();}
  syncPovVideo();syncPovUI();
  multiplayer?.update(dt);
  root.updateMatrixWorld(true);sun.position.set(-25+cruise.position.x,45+cruise.position.y,35+cruise.position.z);sun.target.position.copy(cruise.position);
- updateCamera(dt);background.position.copy(camera.position);$('altitude').textContent=(70+cruise.position.y).toFixed(state.cruise?1:0);renderer.render(scene,camera);
+ updateCamera(dt);background.position.copy(camera.position);
+ for(const panorama of layeredSkies.values())panorama.update(camera,state.elapsed);
+ $('altitude').textContent=(70+cruise.position.y).toFixed(state.cruise?1:0);renderer.render(scene,camera);
 }
 for(const b of document.querySelectorAll('[data-action]'))b.addEventListener('click',()=>setAction(b.dataset.action));
 for(const b of document.querySelectorAll('[data-view]'))b.addEventListener('click',()=>state.ready&&setView(b.dataset.view));
@@ -809,7 +852,15 @@ function setupDanceUI(){
  $('stage-sound').addEventListener('click',()=>soyu.enableAudio());
  soyu.audio.addEventListener('ended',()=>syncDanceUI());
  $('watch').addEventListener('click',watchSoyu);
- $('dance').hidden=false;
+ $('dance').hidden=true;   // 소유 가까이 가면 나온다(syncSoyuNear)
+}
+// 소유 플레이 패널(2026-11-02 사용자: "소유 반경 5미터에 가면 소유 플레이가 자동으로 화면에 나오고 플레이 누르면 춤도 추고 소리가 나도록").
+// 소유에게서 5m 안이면 나오고 5.5m 밖이면 들어간다(경계에서 깜빡이지 않게). 관전 모드에서는 늘 보인다. 재생 버튼은 소리도 같이 켠다(toggleDance)
+const SOYU_NEAR=5;let soyuNear=false;
+function syncSoyuNear(){
+ if(!soyu)return;soyu.center(soyuC);
+ const d=Math.hypot(player.position.x-soyuC.x,player.position.z-soyuC.z),near=state.mode==='watch'||d<(soyuNear?SOYU_NEAR+.5:SOYU_NEAR);
+ if(near!==soyuNear){soyuNear=near;$('dance').hidden=!near;}
 }
 function toggleDance(){
  if(!soyu||!multiplayer||$('dance-play').disabled)return;
@@ -834,6 +885,11 @@ function setupPovUI(){
  syncPovUI();
 }
 function setupTvUI(){
+ $('panorama-flat').addEventListener('click',()=>{panoramaSettings.amount=0;syncPanoramaControls();});
+ $('panorama-depth').addEventListener('click',()=>{panoramaSettings.amount=1;syncPanoramaControls();});
+ $('panorama-amount').addEventListener('input',event=>{panoramaSettings.amount=+event.target.value;syncPanoramaControls();});
+ $('panorama-clouds').addEventListener('change',event=>{panoramaSettings.clouds=event.target.checked;syncPanoramaControls();});
+ $('panorama-preview').addEventListener('change',event=>{panoramaSettings.preview=event.target.checked;syncPanoramaControls();});
  const tvToggle=$('tv-toggle');
  const tvPanel=$('tv-panel');
  const tvPowerBtn=$('tv-power-btn');

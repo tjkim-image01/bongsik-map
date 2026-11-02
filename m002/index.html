@@ -66,15 +66,28 @@
  <aside id="tv-panel" class="tv-panel" aria-label="미디어 및 배경 센터" hidden>
   <header class="tv-header"><div><b>미디어 & 배경 센터</b></div><button id="tv-close" aria-label="패널 닫기">×</button></header>
   <div class="tv-tabs" role="tablist">
-   <button type="button" class="tv-tab-btn active" data-tab="tab-bg-photos" role="tab" aria-selected="true">📷 360° 사진 (13)</button>
+   <button type="button" class="tv-tab-btn active" data-tab="tab-bg-photos" role="tab" aria-selected="true">📷 사진·그림 (14)</button>
    <button type="button" class="tv-tab-btn" data-tab="tab-bg-videos" role="tab" aria-selected="false">🎬 360° 영상 (2)</button>
    <button type="button" class="tv-tab-btn" data-tab="tab-tv" role="tab" aria-selected="false">📺 TV 화면</button>
   </div>
   <div class="tv-content">
    <!-- 1. 360 사진 파노라마 목록 -->
    <section id="tab-bg-photos" class="tv-tab-pane active" role="tabpanel">
-    <div class="tv-section-desc">고화질 360° 풍경 사진을 공간 배경으로 로딩합니다.</div>
+    <div class="tv-section-desc">사진과 그림으로 둘러보는 풍경. 입체 산맥은 움직일 때 깊이가 달라져요.</div>
+    <fieldset id="panorama-controls" class="panorama-controls" hidden>
+     <legend>구름 위 산맥 · 입체 효과</legend>
+     <div class="panorama-modes" role="group" aria-label="파노라마 입체 비교">
+      <button id="panorama-flat" type="button" aria-pressed="false">정지 비교</button>
+      <button id="panorama-depth" type="button" aria-pressed="true">여러 레이어</button>
+     </div>
+     <label class="panorama-range" for="panorama-amount">입체 강도 <output id="panorama-amount-value" for="panorama-amount">1.0배</output></label>
+     <input id="panorama-amount" type="range" min="0" max="2" step="0.1" value="1" aria-label="파노라마 입체 강도">
+     <label class="panorama-check"><input id="panorama-clouds" type="checkbox" checked> 구름 흐르기</label>
+     <label class="panorama-check"><input id="panorama-preview" type="checkbox"> 시차 미리보기</label>
+     <p>WASD로 산책하거나 ‘천천히 비행’을 켜 보세요. 미리보기는 풍경만 천천히 움직여요.</p>
+    </fieldset>
     <div class="tv-media-list scrollable">
+     <button type="button" class="tv-bg-btn" data-bg-id="alpine_layers"><b>구름 위 산맥 · 입체 파노라마</b><small>하늘 · 먼 산 · 구름 · 가까운 능선의 4겹 이미지</small></button>
      <button type="button" class="tv-bg-btn" data-bg-id="seoul"><b>서울 상공 파노라마</b><small>원통 스카이라인 · 서울 360°</small></button>
      <button type="button" class="tv-bg-btn" data-bg-id="paris"><b>파리 상공 (에펠탑)</b><small>센강 & 에펠탑 · 파리 360°</small></button>
      <button type="button" class="tv-bg-btn" data-bg-id="haor"><b>하오르 밤하늘</b><small>360° 별빛 파노라마</small></button>

@@ -115,7 +115,15 @@ function inPlaceWalk(source, model, name = 'SoyuWalk') {
 // Soyu uses her original Mixamo clip, identical to m003's basic motion test.
 // Rika keeps the walk exported with her airship model.
 export function createAvatarFactory({ rika, soyu, clips, soyuWalk, ruby }) {
-  const rikaTemplate = clone(rika);
+  // 리카 원본(airship.glb Player)은 뒤돌기(180°)가 Euler (π, 0, π)로 들어 있다. 그 위에 rotation.y만 바꾸면 도는 방향이 거꾸로 된다
+  // (2026-11-02 사용자: "케릭터와 내가 보는 방향이 서로 반대로 돌아.. 버그네"). 소유·루비처럼 빈 묶음으로 한 번 감싸서
+  // 바깥 묶음의 rotation.y(= 방향 + π) 하나로 돌게 한다. 안쪽 원본은 자리만 0으로(위치·크기·뒤돌기는 그대로)
+  const rikaTemplate = new THREE.Group();
+  rikaTemplate.name = 'RikaAvatar';
+  const rikaModel = clone(rika);
+  rikaModel.position.set(0, 0, 0);
+  rikaModel.rotation.set(Math.PI, 0, Math.PI);
+  rikaTemplate.add(rikaModel);
   rikaTemplate.getObjectByName('Character').visible = true;
   const sourceBind = bindQuaternions(rikaTemplate);
   const soyuTemplate = new THREE.Group();
